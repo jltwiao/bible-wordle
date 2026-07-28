@@ -22,10 +22,9 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background: 
-        radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 40% 40%, rgba(236, 72, 153, 0.05) 0%, transparent 50%);
+    background: radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(236, 72, 153, 0.05) 0%, transparent 50%);
     pointer-events: none;
     z-index: -1;
 }
@@ -54,44 +53,63 @@ header p {
     font-size: 1rem;
 }
 
+.game-board {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
 .grid {
-    display: grid;
-    grid-template-rows: repeat(6, 1fr);
-    gap: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    width: 100%;
+    gap: 7px;
     margin-bottom: 30px;
-    max-width: 350px;
-    margin-left: auto;
-    margin-right: auto;
 }
 
 .row {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 5px;
+    gap: 7px;
+    width: max-content;
 }
-
 .tile {
-    width: 62px;
-    height: 62px;
+    width: clamp(40px, 10vw, 62px);
+    aspect-ratio: 1;
+    box-sizing: border-box;
+
     border: 2px solid #3a3a3c;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 2rem;
+    display: grid;
+    place-items: center;
+
+    font-size: clamp(1.3rem, 5vw, 2rem);
     font-weight: bold;
     text-transform: uppercase;
     background-color: #121213;
-    transition: all 0.3s ease;
+
     /* Mobile optimization */
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
     user-select: none;
     -webkit-user-select: none;
 }
+@media (max-width: 500px) {
+    .tile {
+        width: clamp(38px, 10.5vw, 50px);
+    }
+
+    .row,
+    .grid {
+        gap: 7px;
+    }
+}
 
 .tile.filled {
     border-color: #565758;
-    animation: flip 0.3s ease;
+    animation: input 0.3s ease;
+
 }
 
 .tile.correct {
@@ -112,10 +130,33 @@ header p {
     color: white;
 }
 
+.tile.flip {
+    animation: flip 500ms ease-in-out forwards;
+}
+
 @keyframes flip {
-    0% { transform: scaleY(1); }
-    50% { transform: scaleY(0); }
-    100% { transform: scaleY(1); }
+    0% {
+        transform: scaleY(1);
+    }
+
+    50% {
+        transform: scaleY(0);
+    }
+
+    100% {
+        transform: scaleY(1);
+    }
+}
+@keyframes input {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(.9);
+    }
+    100% {
+        transform: scale(1);
+    }
 }
 
 .keyboard {
@@ -137,6 +178,7 @@ header p {
     border-radius: 4px;
     background-color: #818384;
     color: white;
+    font-family: 'Arial', sans-serif;
     font-size: 14px;
     font-weight: bold;
     cursor: pointer;
@@ -191,6 +233,7 @@ header p {
     left: 50%;
     transform: translateX(-50%);
     z-index: 1000;
+
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
@@ -318,7 +361,7 @@ header p {
     font-size: 0.9rem;
 }
 
-#playAgain {
+#copyResults {
     background-color: #538d4e;
     color: white;
     border: none;
@@ -330,13 +373,17 @@ header p {
     transition: background-color 0.2s ease;
 }
 
-#playAgain:hover {
+#copyResults:hover {
     background-color: #4a7c47;
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 .loading {
@@ -357,8 +404,12 @@ header p {
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 /* Responsive Design */
@@ -367,41 +418,41 @@ header p {
         padding: 10px;
         max-width: 100%;
     }
-    
+
     header h1 {
         font-size: 1.8rem;
         letter-spacing: 0.1rem;
     }
-    
+
     header p {
         font-size: 0.9rem;
     }
-    
+
     .grid {
         max-width: 280px;
         gap: 3px;
     }
-    
+
     .row {
         gap: 3px;
     }
-    
+
     .tile {
         width: 50px;
         height: 50px;
         font-size: 1.5rem;
         border-width: 1px;
     }
-    
+
     .keyboard {
         gap: 6px;
         margin-top: 20px;
     }
-    
+
     .keyboard-row {
         gap: 4px;
     }
-    
+
     .key {
         min-width: 28px;
         height: 45px;
@@ -412,18 +463,18 @@ header p {
         touch-action: manipulation;
         -webkit-tap-highlight-color: transparent;
     }
-    
+
     .key.wide {
         min-width: 50px;
         font-size: 10px;
     }
-    
+
     .message {
         font-size: 1rem;
         margin-top: 15px;
         padding: 8px;
     }
-    
+
     .modal-content {
         margin: 5% auto;
         padding: 20px;
@@ -431,20 +482,20 @@ header p {
         max-height: 85vh;
         overflow-y: auto;
     }
-    
+
     #modalTitle {
         font-size: 1.5rem;
     }
-    
+
     #modalMessage {
         font-size: 1rem;
     }
-    
+
     .word-meaning {
         padding: 15px;
         margin: 15px 0;
     }
-    
+
     .definition {
         padding: 8px;
         margin-bottom: 12px;
@@ -456,19 +507,19 @@ header p {
     .container {
         padding: 15px;
     }
-    
+
     .tile {
         width: 55px;
         height: 55px;
         font-size: 1.8rem;
     }
-    
+
     .key {
         min-width: 35px;
         height: 50px;
         font-size: 13px;
     }
-    
+
     .key.wide {
         min-width: 60px;
     }
@@ -489,10 +540,18 @@ header p {
 }
 
 @keyframes victory {
-    0%, 100% { transform: scale(1); }
-    25% { transform: scale(1.05) rotate(1deg); }
-    50% { transform: scale(1.1) rotate(-1deg); }
-    75% { transform: scale(1.05) rotate(1deg); }
+    0%, 100% {
+        transform: scale(1);
+    }
+    25% {
+        transform: scale(1.05) rotate(1deg);
+    }
+    50% {
+        transform: scale(1.1) rotate(-1deg);
+    }
+    75% {
+        transform: scale(1.05) rotate(1deg);
+    }
 }
 
 /* Improved Focus States */
@@ -502,16 +561,20 @@ header p {
 }
 
 /* Smooth Transitions for Game States */
-.game-board {
-    transition: all 0.3s ease;
-}
+
 
 .game-ended .tile {
     animation: finalReveal 0.5s ease-out forwards;
 }
 
 @keyframes finalReveal {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
 }
