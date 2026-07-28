@@ -1,51 +1,70 @@
+/* =========================
+   Base
+   ========================= */
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+html,
 body {
-    font-family: 'Arial', sans-serif;
-    background-color: #121213;
-    color: #ffffff;
+    width: 100%;
+    min-height: 100%;
+}
+
+body {
+    min-height: 100vh;
+    min-height: 100dvh;
+
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
+
+    overflow-x: hidden;
+
+    font-family: Arial, sans-serif;
+    color: #ffffff;
+    background-color: #121213;
 }
 
-/* Background Effects */
 body::before {
-    content: '';
+    content: "";
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, rgba(236, 72, 153, 0.05) 0%, transparent 50%);
-    pointer-events: none;
+    inset: 0;
     z-index: -1;
+
+    pointer-events: none;
+
+    background:
+            radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 40% 40%, rgba(236, 72, 153, 0.05) 0%, transparent 50%);
 }
+
+/* =========================
+   Layout
+   ========================= */
 
 .container {
-    max-width: 500px;
     width: 100%;
+    max-width: 500px;
     padding: 20px;
 }
 
 header {
-    text-align: center;
     margin-bottom: 30px;
+    text-align: center;
 }
 
 header h1 {
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #3a3a3c;
+
     font-size: 2.5rem;
     letter-spacing: 0.2rem;
-    margin-bottom: 10px;
-    border-bottom: 1px solid #3a3a3c;
-    padding-bottom: 10px;
 }
 
 header p {
@@ -54,116 +73,90 @@ header p {
 }
 
 .game-board {
+    width: 100%;
+
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 100%;
 }
 
+/* =========================
+   Grid
+   ========================= */
+
 .grid {
+    width: 100%;
+    margin-bottom: 30px;
+
     display: flex;
     flex-direction: column;
     align-items: center;
-
-    width: 100%;
     gap: 7px;
-    margin-bottom: 30px;
 }
 
 .row {
+    width: max-content;
+
     display: grid;
     gap: 7px;
-    width: max-content;
 }
+
 .tile {
     width: clamp(40px, 10vw, 62px);
     aspect-ratio: 1;
-    box-sizing: border-box;
 
-    border: 2px solid #3a3a3c;
     display: grid;
     place-items: center;
+
+    border: 2px solid #3a3a3c;
+    background-color: #121213;
 
     font-size: clamp(1.3rem, 5vw, 2rem);
     font-weight: bold;
     text-transform: uppercase;
-    background-color: #121213;
 
-    /* Mobile optimization */
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
     user-select: none;
     -webkit-user-select: none;
 }
-@media (max-width: 500px) {
-    .tile {
-        width: clamp(38px, 10.5vw, 50px);
-    }
-
-    .row,
-    .grid {
-        gap: 7px;
-    }
-}
 
 .tile.filled {
     border-color: #565758;
     animation: input 0.3s ease;
-
 }
 
 .tile.correct {
+    color: #ffffff;
     background-color: #538d4e;
     border-color: #538d4e;
-    color: white;
 }
 
 .tile.present {
+    color: #ffffff;
     background-color: #b59f3b;
     border-color: #b59f3b;
-    color: white;
 }
 
 .tile.absent {
+    color: #ffffff;
     background-color: #3a3a3c;
     border-color: #3a3a3c;
-    color: white;
 }
 
 .tile.flip {
     animation: flip 500ms ease-in-out forwards;
 }
 
-@keyframes flip {
-    0% {
-        transform: scaleY(1);
-    }
-
-    50% {
-        transform: scaleY(0);
-    }
-
-    100% {
-        transform: scaleY(1);
-    }
-}
-@keyframes input {
-    0% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(.9);
-    }
-    100% {
-        transform: scale(1);
-    }
-}
+/* =========================
+   Keyboard
+   ========================= */
 
 .keyboard {
     display: flex;
     flex-direction: column;
-    gap: 8px;
     align-items: center;
+    gap: 8px;
 }
 
 .keyboard-row {
@@ -174,19 +167,27 @@ header p {
 .key {
     min-width: 40px;
     height: 58px;
-    border: none;
-    border-radius: 4px;
-    background-color: #818384;
-    color: white;
-    font-family: 'Arial', sans-serif;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
+
     display: flex;
     justify-content: center;
     align-items: center;
-    transition: background-color 0.2s ease;
-    /* Mobile optimization */
+
+    border: none;
+    border-radius: 4px;
+
+    color: #ffffff;
+    background-color: #818384;
+
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition:
+            background-color 0.2s ease,
+            transform 0.1s ease;
+
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
     user-select: none;
@@ -200,6 +201,11 @@ header p {
 .key:active {
     background-color: #3a3a3c;
     transform: scale(0.95);
+}
+
+.key:focus {
+    outline: 2px solid #6366f1;
+    outline-offset: 2px;
 }
 
 .key.wide {
@@ -219,81 +225,86 @@ header p {
     background-color: #3a3a3c;
 }
 
+/* =========================
+   Messages
+   ========================= */
+
 .message {
-    text-align: center;
-    margin-top: 20px;
-    font-size: 1.2rem;
-    min-height: 30px;
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-weight: 600;
-    transition: all 0.3s ease;
     position: fixed;
     top: 80px;
     left: 50%;
-    transform: translateX(-50%);
     z-index: 1000;
 
+    min-height: 30px;
+    margin-top: 20px;
+    padding: 12px 24px;
+
+    border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: 600;
+
+    transform: translateX(-50%);
+    transition: all 0.3s ease;
 }
 
 .message.success {
-    color: white;
+    color: #ffffff;
     background-color: #10b981;
     border: 1px solid #059669;
 }
 
 .message.error {
-    color: white;
+    color: #ffffff;
     background-color: #ef4444;
     border: 1px solid #dc2626;
     animation: messageSlide 0.3s ease-out;
 }
 
-@keyframes messageSlide {
-    from {
-        opacity: 0;
-        transform: translateX(-50%) translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0);
-    }
-}
+/* =========================
+   Modal
+   ========================= */
 
-/* Modal Styles */
 .modal {
     display: none;
     position: fixed;
+    inset: 0;
     z-index: 1000;
-    left: 0;
-    top: 0;
+
     width: 100%;
     height: 100%;
+
     background-color: rgba(0, 0, 0, 0.8);
     animation: fadeIn 0.3s ease;
 }
 
 .modal-content {
-    background-color: #121213;
-    margin: 10% auto;
-    padding: 30px;
-    border: 1px solid #3a3a3c;
-    border-radius: 8px;
+    position: relative;
+
     width: 90%;
     max-width: 500px;
-    position: relative;
+    margin: 10% auto;
+    padding: 30px;
+
+    border: 1px solid #3a3a3c;
+    border-radius: 8px;
+
+    background-color: #121213;
     text-align: center;
 }
 
 .close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+
     color: #818384;
-    float: right;
+
     font-size: 28px;
     font-weight: bold;
-    position: absolute;
-    right: 15px;
-    top: 10px;
+
     cursor: pointer;
 }
 
@@ -302,29 +313,34 @@ header p {
 }
 
 #modalTitle {
-    font-size: 2rem;
     margin-bottom: 15px;
+
     color: #ffffff;
+    font-size: 2rem;
 }
 
 #modalMessage {
-    font-size: 1.2rem;
     margin-bottom: 20px;
+
     color: #818384;
+    font-size: 1.2rem;
 }
 
 .word-meaning {
-    background-color: #1e1e1e;
+    margin: 20px 0;
+    padding: 20px;
+
     border: 1px solid #3a3a3c;
     border-radius: 8px;
-    padding: 20px;
-    margin: 20px 0;
+
+    background-color: #1e1e1e;
     text-align: left;
 }
 
 .word-meaning h3 {
-    color: #ffffff;
     margin-bottom: 15px;
+
+    color: #ffffff;
     text-align: center;
     font-size: 1.3rem;
 }
@@ -337,16 +353,19 @@ header p {
 .definition {
     margin-bottom: 15px;
     padding: 10px;
-    background-color: #262626;
+
     border-radius: 5px;
+    background-color: #262626;
 }
 
 .part-of-speech {
-    font-weight: bold;
-    color: #b59f3b;
-    text-transform: uppercase;
-    font-size: 0.9rem;
     margin-bottom: 5px;
+
+    color: #b59f3b;
+
+    font-size: 0.9rem;
+    font-weight: bold;
+    text-transform: uppercase;
 }
 
 .definition-text {
@@ -355,21 +374,27 @@ header p {
 }
 
 .example {
-    color: #818384;
-    font-style: italic;
     margin-top: 5px;
+
+    color: #818384;
+
     font-size: 0.9rem;
+    font-style: italic;
 }
 
 #copyResults {
-    background-color: #538d4e;
-    color: white;
-    border: none;
-    padding: 12px 30px;
-    font-size: 1rem;
-    border-radius: 5px;
-    cursor: pointer;
     margin-top: 20px;
+    padding: 12px 30px;
+
+    border: none;
+    border-radius: 5px;
+
+    color: #ffffff;
+    background-color: #538d4e;
+
+    font-size: 1rem;
+
+    cursor: pointer;
     transition: background-color 0.2s ease;
 }
 
@@ -377,46 +402,159 @@ header p {
     background-color: #4a7c47;
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
+/* =========================
+   Loading
+   ========================= */
 
 .loading {
     display: flex;
     justify-content: center;
     align-items: center;
+
     padding: 20px;
 }
 
 .loading::after {
-    content: '';
+    content: "";
+
     width: 20px;
     height: 20px;
+
     border: 2px solid #3a3a3c;
-    border-top: 2px solid #538d4e;
+    border-top-color: #538d4e;
     border-radius: 50%;
+
     animation: spin 1s linear infinite;
 }
 
-@keyframes spin {
+/* =========================
+   Animations
+   ========================= */
+
+@keyframes flip {
     0% {
+        transform: scaleY(1);
+    }
+
+    50% {
+        transform: scaleY(0);
+    }
+
+    100% {
+        transform: scaleY(1);
+    }
+}
+
+@keyframes input {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(0.9);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes messageSlide {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes spin {
+    from {
         transform: rotate(0deg);
     }
-    100% {
+
+    to {
         transform: rotate(360deg);
     }
 }
 
-/* Responsive Design */
+.victory-animation {
+    animation: victory 1s ease-out;
+}
+
+@keyframes victory {
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    25% {
+        transform: scale(1.05) rotate(1deg);
+    }
+
+    50% {
+        transform: scale(1.1) rotate(-1deg);
+    }
+
+    75% {
+        transform: scale(1.05) rotate(1deg);
+    }
+}
+
+.game-ended .tile {
+    animation: finalReveal 0.5s ease-out forwards;
+}
+
+@keyframes finalReveal {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* =========================
+   Responsive
+   ========================= */
+
+@media (max-width: 500px) {
+    .tile {
+        width: clamp(38px, 10.5vw, 50px);
+    }
+}
+
 @media (max-width: 480px) {
+    body {
+        align-items: flex-start;
+    }
+
     .container {
-        padding: 10px;
+        min-height: 100dvh;
         max-width: 100%;
+        padding: 10px;
+    }
+
+    header {
+        margin-bottom: 12px;
     }
 
     header h1 {
@@ -440,13 +578,13 @@ header p {
     .tile {
         width: 50px;
         height: 50px;
-        font-size: 1.5rem;
+
         border-width: 1px;
+        font-size: 1.5rem;
     }
 
     .keyboard {
         gap: 6px;
-        margin-top: 20px;
     }
 
     .keyboard-row {
@@ -454,14 +592,13 @@ header p {
     }
 
     .key {
-        min-width: 28px;
-        height: 45px;
-        font-size: 11px;
-        font-weight: 600;
+        min-width: 34px;
+        height: 49px;
+
         border-radius: 6px;
-        /* Better touch targets */
-        touch-action: manipulation;
-        -webkit-tap-highlight-color: transparent;
+
+        font-size: 14px;
+        font-weight: 600;
     }
 
     .key.wide {
@@ -470,16 +607,18 @@ header p {
     }
 
     .message {
-        font-size: 1rem;
         margin-top: 15px;
         padding: 8px;
+
+        font-size: 1rem;
     }
 
     .modal-content {
-        margin: 5% auto;
-        padding: 20px;
         width: 95%;
         max-height: 85vh;
+        margin: 5% auto;
+        padding: 20px;
+
         overflow-y: auto;
     }
 
@@ -492,17 +631,16 @@ header p {
     }
 
     .word-meaning {
-        padding: 15px;
         margin: 15px 0;
+        padding: 15px;
     }
 
     .definition {
-        padding: 8px;
         margin-bottom: 12px;
+        padding: 8px;
     }
 }
 
-/* Tablet optimization */
 @media (min-width: 481px) and (max-width: 768px) {
     .container {
         padding: 15px;
@@ -525,56 +663,16 @@ header p {
     }
 }
 
-/* Improved Grid Hover Effects */
-.row:hover .tile {
-    transform: scale(0.98);
-}
+/* =========================
+   Desktop Hover Effects
+   ========================= */
 
-.row:hover .tile:hover {
-    transform: scale(1.02);
-}
-
-/* Success Animation for Winning */
-.victory-animation {
-    animation: victory 1s ease-out;
-}
-
-@keyframes victory {
-    0%, 100% {
-        transform: scale(1);
+@media (hover: hover) {
+    .row:hover .tile {
+        transform: scale(0.98);
     }
-    25% {
-        transform: scale(1.05) rotate(1deg);
-    }
-    50% {
-        transform: scale(1.1) rotate(-1deg);
-    }
-    75% {
-        transform: scale(1.05) rotate(1deg);
-    }
-}
 
-/* Improved Focus States */
-.key:focus {
-    outline: 2px solid #6366f1;
-    outline-offset: 2px;
-}
-
-/* Smooth Transitions for Game States */
-
-
-.game-ended .tile {
-    animation: finalReveal 0.5s ease-out forwards;
-}
-
-@keyframes finalReveal {
-    0% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.05);
-    }
-    100% {
-        transform: scale(1);
+    .row:hover .tile:hover {
+        transform: scale(1.02);
     }
 }
