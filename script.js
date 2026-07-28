@@ -36,6 +36,8 @@ class WordleGame {
         this.won = false;
         this.messageTimeout = null;
 
+        this.cookieName = `wordleGameState_${this.wordLength}`;
+
         this.cacheElements();
         this.initializeGame();
     }
@@ -58,6 +60,7 @@ class WordleGame {
         this.createGrid();
         this.createKeyboard();
         this.setupEventListeners();
+        this.restoreGameState();
         this.loadWords();
     }
 
@@ -76,6 +79,10 @@ class WordleGame {
                         ])
                         .filter(([name]) => name.length > 0),
                 );
+
+                if (this.gameEnded) {
+                    this.displayWordMeaning();
+                }
             },
 
             error: (error) => {
@@ -240,13 +247,14 @@ class WordleGame {
             return;
         }
 
-        if (!(await this.isValidWord(this.currentGuess))) {
-            this.showMessage("Not a valid word.", "error");
-            return;
-        }
 
         const guess = this.currentGuess;
         const won = guess === this.currentWord;
+
+        if (!(this.words.has(this.currentGuess)) && !won) {
+            this.showMessage("Not a valid word.", "error");
+            return;
+        }
 
         this.guesses.push(guess);
         await this.revealGuess(guess);
@@ -263,6 +271,7 @@ class WordleGame {
 
         this.currentRow++;
         this.currentGuess = "";
+        this.saveGameState();
     }
 
     evaluateGuess(guess) {
@@ -358,23 +367,6 @@ class WordleGame {
         key.classList.add(newStatus);
     }
 
-    async isValidWord(word) {
-        if (this.words.has(word)) {
-            return true;
-        }
-
-        try {
-            const response = await fetch(
-                `https://api.dictionaryapi.dev/api/v2/entries/en/${word.toLowerCase()}`,
-            );
-
-            return response.ok;
-        } catch (error) {
-            console.error("Could not validate word:", error);
-            return false;
-        }
-    }
-
     async endGame(won) {
         this.gameEnded = true;
         this.won = won;
@@ -389,6 +381,7 @@ class WordleGame {
                 `The word was: ${this.currentWord}`;
         }
 
+        this.saveGameState();
         this.showModal();
         await this.displayWordMeaning();
     }
@@ -396,62 +389,16 @@ class WordleGame {
     async displayWordMeaning() {
         this.elements.wordMeaning.innerHTML = '<div class="loading"></div>';
 
-        const localDescription = this.words.get(this.currentWord);
-
-        if (localDescription) {
+        let localDescription = this.words.get(this.currentWord);
+        if (!localDescription){
+            localDescription = "No definition yet for this word. :("
+        }
             this.elements.wordMeaning.replaceChildren(
                 this.createDefinitionElement(localDescription),
             );
-            return;
-        }
-
-        try {
-            const response = await fetch(
-                `https://api.dictionaryapi.dev/api/v2/entries/en/${this.currentWord.toLowerCase()}`,
-            );
-
-            if (!response.ok) {
-                throw new Error(`Dictionary request failed: ${response.status}`);
-            }
-
-            const [wordData] = await response.json();
-            const definitions = [];
-
-            for (const meaning of wordData?.meanings ?? []) {
-                const firstDefinition = meaning.definitions?.[0];
-
-                if (!firstDefinition?.definition) {
-                    continue;
-                }
-
-                definitions.push(
-                    this.createDefinitionElement(
-                        firstDefinition.definition,
-                        firstDefinition.example,
-                    ),
-                );
-
-                if (definitions.length === 3) {
-                    break;
-                }
-            }
-
-            if (definitions.length > 0) {
-                this.elements.wordMeaning.replaceChildren(...definitions);
-                return;
-            }
-        } catch (error) {
-            console.error("Could not load word meaning:", error);
-        }
-
-        this.elements.wordMeaning.replaceChildren(
-            this.createDefinitionElement(
-                "Definition not available for this word.",
-            ),
-        );
     }
 
-    createDefinitionElement(definition, example = "") {
+    createDefinitionElement(definition) {
         const container = document.createElement("div");
         const definitionText = document.createElement("div");
 
@@ -459,14 +406,6 @@ class WordleGame {
         definitionText.className = "definition-text";
         definitionText.textContent = definition;
         container.appendChild(definitionText);
-
-        if (example) {
-            const exampleText = document.createElement("div");
-
-            exampleText.className = "example";
-            exampleText.textContent = `Example: "${example}"`;
-            container.appendChild(exampleText);
-        }
 
         return container;
     }
@@ -492,6 +431,145 @@ class WordleGame {
         } catch (error) {
             console.error("Clipboard error:", error);
             this.showMessage("Could not copy results.", "error");
+        }
+    }
+
+    getNextMidnight() {
+        const midnight = new Date();
+        midnight.setHours(24, 0, 0, 0);
+        return midnight;
+    }
+
+    setCookie(name, value) {
+        const expires = this.getNextMidnight().toUTCString();
+        const secure = location.protocol === "https:" ? "; Secure" : "";
+
+        document.cookie =
+            `${encodeURIComponent(name)}=${encodeURIComponent(value)}; ` +
+            `expires=${expires}; path=/; SameSite=Lax${secure}`;
+    }
+
+    getCookie(name) {
+        const prefix = `${encodeURIComponent(name)}=`;
+
+        for (const cookie of document.cookie.split(";")) {
+            const trimmedCookie = cookie.trim();
+
+            if (trimmedCookie.startsWith(prefix)) {
+                return decodeURIComponent(trimmedCookie.slice(prefix.length));
+            }
+        }
+
+        return null;
+    }
+
+    deleteCookie(name) {
+        document.cookie =
+            `${encodeURIComponent(name)}=; ` +
+            "expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=Lax";
+    }
+
+    saveGameState() {
+        const state = {
+            word: this.currentWord,
+            maxAttempts: this.maxAttempts,
+            guesses: this.guesses,
+            guessResults: this.guessResults,
+            gameEnded: this.gameEnded,
+            won: this.won,
+        };
+
+        this.setCookie(this.cookieName, JSON.stringify(state));
+    }
+
+    restoreGameState() {
+        const savedCookie = this.getCookie(this.cookieName);
+
+        if (!savedCookie) {
+            return;
+        }
+
+        let state;
+
+        try {
+            state = JSON.parse(savedCookie);
+        } catch (error) {
+            console.warn("Invalid saved game cookie:", error);
+            this.deleteCookie(this.cookieName);
+            return;
+        }
+
+        if (
+            state.word !== this.currentWord
+            || state.maxAttempts !== this.maxAttempts
+            || !Array.isArray(state.guesses)
+            || !Array.isArray(state.guessResults)
+        ) {
+            this.deleteCookie(this.cookieName);
+            return;
+        }
+
+        this.guesses = state.guesses.slice(0, this.maxAttempts);
+        this.guessResults = state.guessResults.slice(0, this.maxAttempts);
+        this.gameEnded = Boolean(state.gameEnded);
+        this.won = Boolean(state.won);
+        this.currentGuess = "";
+
+        this.renderSavedGuesses();
+
+        if (this.gameEnded) {
+            this.currentRow = Math.max(0, this.guesses.length - 1);
+
+            if (this.won) {
+                this.elements.modalTitle.textContent = "Congratulations! 🎉";
+                this.elements.modalMessage.textContent =
+                    `You guessed the word in ${this.guesses.length} tries!`;
+            } else {
+                this.elements.modalTitle.textContent = "Game Over 😞";
+                this.elements.modalMessage.textContent =
+                    `The word was: ${this.currentWord}`;
+            }
+
+            this.showModal();
+        } else {
+            this.currentRow = Math.min(
+                this.guesses.length,
+                this.maxAttempts - 1,
+            );
+        }
+    }
+
+    renderSavedGuesses() {
+        for (let rowIndex = 0; rowIndex < this.guesses.length; rowIndex++) {
+            const guess = this.guesses[rowIndex];
+            const result = this.guessResults[rowIndex];
+            const rowTiles = this.tiles[rowIndex];
+
+            if (
+                typeof guess !== "string"
+                || !Array.isArray(result)
+                || !rowTiles
+            ) {
+                continue;
+            }
+
+            for (
+                let columnIndex = 0;
+                columnIndex < this.wordLength;
+                columnIndex++
+            ) {
+                const letter = guess[columnIndex] ?? "";
+                const status = result[columnIndex];
+                const tile = rowTiles[columnIndex];
+
+                tile.textContent = letter;
+                tile.classList.toggle("filled", letter !== "");
+
+                if (WordleGame.STATUS_PRIORITY[status]) {
+                    tile.classList.add(status);
+                    this.updateKeyboard(letter, status);
+                }
+            }
         }
     }
 

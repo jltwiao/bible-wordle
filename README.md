@@ -5,4 +5,4 @@ A recreation of NYTimes Wordle based on arun2424's [Wordle Clone](https://github
 ## Credits
 arun2424 original World Clone https://arun2424.github.io/WORDLE/
 BibleAsk word lists and definitions https://bibleask.org/resources/bible-names/
-dictionaryapi.dev api https://dictionaryapi.dev/
+Raw data from Wiktionary by kaikki https://kaikki.org/dictionary/rawdata.html
