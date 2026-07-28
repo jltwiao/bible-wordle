@@ -16,13 +16,11 @@ permissions:
   id-token: write
 
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
   group: "pages"
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
-  # Single deploy job since we're just deploying
   deploy:
     environment:
       name: github-pages
@@ -31,14 +29,23 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Generate browser configuration
+      - name: Generate env.js
+        env:
+          TODAY_WORD: ${{ vars.TODAY_WORD }}
+          MAX_ATTEMPTS: ${{ vars.MAX_ATTEMPTS }}
         run: |
-          cat > env.js <<'EOF'
+          cat > env.js <<EOF
           window.env = {
-            TODAY_WORD: "${{ vars.TODAY_WORD }}",
-            MAX_ATTEMPTS: Number("${{ vars.MAX_ATTEMPTS }}")
+            TODAY_WORD: "$TODAY_WORD",
+            MAX_ATTEMPTS: Number("$MAX_ATTEMPTS")
           };
           EOF
+
+      - name: Verify generated file
+        run: |
+          ls -la
+          test -f env.js
+          cat env.js
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
