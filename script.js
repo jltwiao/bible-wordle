@@ -419,9 +419,10 @@ class WordleGame {
             )
             .join("\n");
 
-        const heading = this.won
-            ? `Wordle guessed in ${this.guesses.length}/${this.maxAttempts}!`
-            : `Wordle X/${this.maxAttempts}`;
+        let heading = `Wordle guessed in ${this.guesses.length}/${this.maxAttempts}!`;
+        if (!this.won){
+            heading = `Wordle attempted! ${this.guesses.length}/${this.maxAttempts}!`
+        }
 
         const resultText = [heading, "", emojiGrid].join("\n");
 
