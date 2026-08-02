@@ -85,24 +85,29 @@ header p {
    ========================= */
 
 .grid {
+    --tile-size: 62px;
+    --tile-gap: 4px;
+
     width: 100%;
     margin-bottom: 30px;
 
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 7px;
+    gap: 5px;
 }
 
 .row {
     width: max-content;
 
     display: grid;
-    gap: 7px;
+    gap: var(--tile-gap);
+
 }
 
 .tile {
-    width: clamp(40px, 10vw, 62px);
+    width: var(--tile-size);
+    font-size: calc(var(--tile-size) * 0.52);
     aspect-ratio: 1;
 
     display: grid;
@@ -111,7 +116,6 @@ header p {
     border: 2px solid #3a3a3c;
     background-color: #121213;
 
-    font-size: clamp(1.3rem, 5vw, 2rem);
     font-weight: bold;
     text-transform: uppercase;
 
@@ -537,8 +541,30 @@ header p {
    ========================= */
 
 @media (max-width: 500px) {
+    .grid {
+        --word-length: 5;
+        --tile-gap: 7px;
+        --horizontal-space: 32px;
+    }
+
+    .row {
+        gap: var(--tile-gap);
+    }
+
     .tile {
-        width: clamp(38px, 10.5vw, 50px);
+        width: min(
+                62px,
+                calc(
+                        (
+                        100vw
+                        - var(--horizontal-space)
+                        - (var(--word-length) - 1) * var(--tile-gap)
+                        )
+                        / var(--word-length)
+                )
+        );
+
+        aspect-ratio: 1;
     }
 }
 
@@ -567,8 +593,19 @@ header p {
     }
 
     .grid {
-        max-width: 280px;
-        gap: 3px;
+        --tile-gap: 3px;
+    }
+
+    .grid[data-word-length="5"] {
+        --tile-size: 50px;
+    }
+
+    .grid[data-word-length="6"] {
+        --tile-size: 45px;
+    }
+
+    .grid[data-word-length="7"] {
+        --tile-size: 40px;
     }
 
     .row {
@@ -576,11 +613,8 @@ header p {
     }
 
     .tile {
-        width: 50px;
-        height: 50px;
-
         border-width: 1px;
-        font-size: 1.5rem;
+        font-size: calc(var(--tile-size) * 0.48);
     }
 
     .keyboard {
@@ -646,10 +680,27 @@ header p {
         padding: 15px;
     }
 
+    .grid {
+        --tile-gap: 3px;
+        --horizontal-space: 24px;
+    }
+
     .tile {
-        width: 55px;
-        height: 55px;
-        font-size: 1.8rem;
+        width: min(
+                50px,
+                calc(
+                        (
+                        100vw
+                        - var(--horizontal-space)
+                        - (var(--word-length) - 1) * var(--tile-gap)
+                        )
+                        / var(--word-length)
+                )
+        );
+
+        height: auto;
+        aspect-ratio: 1;
+        font-size: clamp(1rem, 5vw, 1.5rem);
     }
 
     .key {
