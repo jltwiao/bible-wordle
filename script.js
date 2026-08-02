@@ -36,7 +36,7 @@ class WordleGame {
         this.won = false;
         this.messageTimeout = null;
 
-        this.cookieName = `wordleGameState_${this.wordLength}`;
+        this.cookieName = `wordleGameState`;
 
         this.cacheElements();
         this.initializeGame();
@@ -95,9 +95,15 @@ class WordleGame {
     createGrid() {
         const fragment = document.createDocumentFragment();
         this.tiles = [];
+        this.elements.grid.dataset.wordLength = this.wordLength;
+        this.elements.grid.style.setProperty(
+            "--word-length",
+            this.wordLength,
+        );
 
         this.elements.grid.style.gridTemplateRows =
             `repeat(${this.maxAttempts}, 1fr)`;
+
 
         for (let rowIndex = 0; rowIndex < this.maxAttempts; rowIndex++) {
             const row = document.createElement("div");
@@ -473,6 +479,7 @@ class WordleGame {
     saveGameState() {
         const state = {
             word: this.currentWord,
+            wordLength: this.wordLength,
             maxAttempts: this.maxAttempts,
             guesses: this.guesses,
             guessResults: this.guessResults,
@@ -502,6 +509,7 @@ class WordleGame {
 
         if (
             state.word !== this.currentWord
+            || state.wordLength !== this.wordLength
             || state.maxAttempts !== this.maxAttempts
             || !Array.isArray(state.guesses)
             || !Array.isArray(state.guessResults)
