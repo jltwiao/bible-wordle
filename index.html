@@ -42,7 +42,12 @@
             </div>
         </div>
     </div>
-    <script src="./env.js"></script>
+    <script>
+  const script = document.createElement("script");
+  script.src =
+    "https://gist.githubusercontent.com/jltwiao/ec0ed2f1aeb966f5f78ffab13a3e2959/raw/7fd920c04d0211e39377a4f04259fffe49638451/bible-wordle.js?t=" + Date.now();
+  document.body.appendChild(script);
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.5.3/papaparse.min.js"></script>
     <script src="script.js"></script>
 </body>
