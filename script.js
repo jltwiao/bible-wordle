@@ -20,10 +20,10 @@ class WordleGame {
     static FLIP_DURATION = 500;
     static STAGGER_DELAY = 270;
 
-    constructor() {
-        this.currentWord = String(window.env.TODAY_WORD).trim().toUpperCase();
+    constructor(config) {
+        this.currentWord = String(config.TODAY_WORD).trim().toUpperCase();
         this.wordLength = this.currentWord.length;
-        this.maxAttempts = Number(window.env.MAX_ATTEMPTS);
+        this.maxAttempts = Number(config.MAX_ATTEMPTS);
 
         this.currentGuess = "";
         this.currentRow = 0;
@@ -250,7 +250,6 @@ class WordleGame {
     async submitGuess() {
         if (this.currentGuess.length !== this.wordLength) {
             this.showMessage("Not enough letters.", "error");
-            return;
         }
 
 
@@ -605,6 +604,46 @@ class WordleGame {
     }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    new WordleGame();
+const CONFIG_URL =
+    "https://gist.githubusercontent.com/jltwiao/ec0ed2f1aeb966f5f78ffab13a3e2959/raw/bible-wordle.json";
+
+async function loadWordleConfig() {
+    const response = await fetch(`${CONFIG_URL}?t=${Date.now()}`, {
+        cache: "no-store",
+    });
+
+    if (!response.ok) {
+        throw new Error(
+            `Could not load Wordle configuration: ${response.status}`
+        );
+    }
+
+    const config = await response.json();
+
+    if (!config.TODAY_WORD) {
+        throw new Error("The Gist does not contain TODAY_WORD.");
+    }
+
+    if (!Number.isInteger(Number(config.MAX_ATTEMPTS))) {
+        throw new Error("The Gist contains an invalid MAX_ATTEMPTS.");
+    }
+
+    return config;
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+    try {
+        const config = await loadWordleConfig();
+        new WordleGame(config);
+    } catch (error) {
+        console.error("Could not start Wordle:", error);
+
+        const message = document.getElementById("message");
+
+        if (message) {
+            message.hidden = false;
+            message.className = "message error";
+            message.textContent = "Could not load today's Wordle.";
+        }
+    }
 });
