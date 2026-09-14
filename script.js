@@ -608,7 +608,9 @@ const CONFIG_URL =
     "https://gist.githubusercontent.com/jltwiao/ec0ed2f1aeb966f5f78ffab13a3e2959/raw/bible-wordle.json";
 
 async function loadWordleConfig() {
-    const response = await fetch(`${CONFIG_URL}?t=${Date.now()}`, {
+    let time = Date.now();
+    time.setMinutes(0, 0, 0)
+    const response = await fetch(`${CONFIG_URL}?t=${time}`, {
         cache: "no-store",
     });
 
