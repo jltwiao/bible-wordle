@@ -1,0 +1,645 @@
+/* =========================
+   Base
+   ========================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 100%;
+    min-height: 100%;
+}
+
+body {
+    min-height: 100dvh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    overflow-x: hidden;
+
+    font-family: Arial, sans-serif;
+    color: #ffffff;
+    background-color: #121213;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+
+    pointer-events: none;
+
+    background:
+            radial-gradient(circle at 20% 80%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 40% 40%, rgba(236, 72, 153, 0.05) 0%, transparent 50%);
+}
+
+/* =========================
+   Layout
+   ========================= */
+
+.container {
+    width: 100%;
+    max-width: 500px;
+    padding: 20px;
+}
+
+header {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+header h1 {
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #3a3a3c;
+
+    font-size: 2.5rem;
+    letter-spacing: 0.2rem;
+}
+
+header p {
+    color: #818384;
+    font-size: 1rem;
+}
+
+.game-board {
+    width: 100%;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* =========================
+   Grid
+   ========================= */
+
+.grid {
+    width: 100%;
+
+    margin-bottom: 30px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    min-width: 0;
+    gap: 5px;
+}
+
+.tile {
+    width: 62px;
+    min-width: 42px;
+    font-size: 30px;
+    aspect-ratio: 1;
+
+    display: grid;
+    place-items: center;
+
+    border: 2px solid #3a3a3c;
+    background-color: #121213;
+
+    font-weight: bold;
+    text-transform: uppercase;
+
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.tile.filled {
+    border-color: #565758;
+    animation: input 0.3s ease;
+}
+
+.tile.correct {
+    color: #ffffff;
+    background-color: #538d4e;
+    border-color: #538d4e;
+}
+
+.tile.present {
+    color: #ffffff;
+    background-color: #b59f3b;
+    border-color: #b59f3b;
+}
+
+.tile.absent {
+    color: #ffffff;
+    background-color: #3a3a3c;
+    border-color: #3a3a3c;
+}
+
+.tile.flip {
+    animation: flip 500ms ease-in-out forwards;
+}
+
+/* =========================
+   Keyboard
+   ========================= */
+
+.keyboard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.keyboard-row {
+    display: flex;
+    gap: 6px;
+}
+
+.key {
+    min-width: 40px;
+    height: 58px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    border: none;
+    border-radius: 4px;
+
+    color: #ffffff;
+    background-color: #818384;
+
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition:
+            background-color 0.2s ease,
+            transform 0.1s ease;
+
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.key:hover {
+    background-color: #565758;
+}
+
+.key:active {
+    background-color: #3a3a3c;
+    transform: scale(0.95);
+}
+
+.key:focus {
+    outline: 2px solid #6366f1;
+    outline-offset: 2px;
+}
+
+.key.wide {
+    min-width: 65px;
+    font-size: 12px;
+}
+.key.space {
+    min-width: 200px;
+    font-size: 12px;
+}
+
+.key.correct {
+    background-color: #538d4e;
+}
+
+.key.present {
+    background-color: #b59f3b;
+}
+
+.key.absent {
+    background-color: #3a3a3c;
+}
+
+/* =========================
+   Messages
+   ========================= */
+
+.message {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    z-index: 1000;
+
+    min-height: 30px;
+    margin-top: 20px;
+    padding: 12px 24px;
+
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: 600;
+
+    transform: translateX(-50%);
+    transition: all 0.3s ease;
+}
+
+.message.success {
+    color: #ffffff;
+    background-color: #10b981;
+    border: 1px solid #059669;
+}
+
+.message.error {
+    color: #ffffff;
+    background-color: #ef4444;
+    border: 1px solid #dc2626;
+    animation: messageSlide 0.3s ease-out;
+}
+
+/* =========================
+   Modal
+   ========================= */
+
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+
+    width: 100%;
+    height: 100%;
+
+    background-color: rgba(0, 0, 0, 0.8);
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+    position: relative;
+
+    width: 90%;
+    max-width: 500px;
+    margin: 10% auto;
+    padding: 30px;
+
+    border: 1px solid #3a3a3c;
+    border-radius: 8px;
+
+    background-color: #121213;
+    text-align: center;
+}
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+
+    color: #818384;
+
+    font-size: 28px;
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+.close:hover {
+    color: #ffffff;
+}
+
+#modalTitle {
+    margin-bottom: 15px;
+
+    color: #ffffff;
+    font-size: 2rem;
+}
+
+#modalMessage {
+    margin-bottom: 20px;
+
+    color: #818384;
+    font-size: 1.2rem;
+}
+
+.word-meaning {
+    margin: 20px 0;
+    padding: 20px;
+
+    border: 1px solid #3a3a3c;
+    border-radius: 8px;
+
+    background-color: #1e1e1e;
+    text-align: left;
+}
+
+.word-meaning h3 {
+    margin-bottom: 15px;
+
+    color: #ffffff;
+    text-align: center;
+    font-size: 1.3rem;
+}
+
+#wordMeaning {
+    color: #ffffff;
+    line-height: 1.6;
+}
+
+.definition {
+    margin-bottom: 15px;
+    padding: 10px;
+
+    border-radius: 5px;
+    background-color: #262626;
+}
+
+.part-of-speech {
+    margin-bottom: 5px;
+
+    color: #b59f3b;
+
+    font-size: 0.9rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.definition-text {
+    color: #ffffff;
+    font-size: 1rem;
+}
+
+.example {
+    margin-top: 5px;
+
+    color: #818384;
+
+    font-size: 0.9rem;
+    font-style: italic;
+}
+
+#copyResults {
+    margin-top: 20px;
+    padding: 12px 30px;
+
+    border: none;
+    border-radius: 5px;
+
+    color: #ffffff;
+    background-color: #538d4e;
+
+    font-size: 1rem;
+
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+#copyResults:hover {
+    background-color: #4a7c47;
+}
+
+/* =========================
+   Loading
+   ========================= */
+
+.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 20px;
+}
+
+.loading::after {
+    content: "";
+
+    width: 20px;
+    height: 20px;
+
+    border: 2px solid #3a3a3c;
+    border-top-color: #538d4e;
+    border-radius: 50%;
+
+    animation: spin 1s linear infinite;
+}
+
+/* =========================
+   Animations
+   ========================= */
+
+@keyframes flip {
+    0% {
+        transform: scaleY(1);
+    }
+
+    50% {
+        transform: scaleY(0);
+    }
+
+    100% {
+        transform: scaleY(1);
+    }
+}
+
+@keyframes input {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(0.9);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes messageSlide {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.victory-animation {
+    animation: victory 1s ease-out;
+}
+
+@keyframes victory {
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    25% {
+        transform: scale(1.05) rotate(1deg);
+    }
+
+    50% {
+        transform: scale(1.1) rotate(-1deg);
+    }
+
+    75% {
+        transform: scale(1.05) rotate(1deg);
+    }
+}
+
+.game-ended .tile {
+    animation: finalReveal 0.5s ease-out forwards;
+}
+
+@keyframes finalReveal {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        align-items: flex-start;
+    }
+
+    .container {
+        min-height: 100dvh;
+        max-width: 100%;
+        padding: 10px;
+    }
+
+    header {
+        margin-bottom: 12px;
+    }
+
+    header h1 {
+        font-size: 1.8rem;
+        letter-spacing: 0.1rem;
+    }
+
+    header p {
+        font-size: 0.9rem;
+    }
+
+    .keyboard {
+        gap: 6px;
+    }
+
+    .keyboard-row {
+        gap: 4px;
+    }
+
+    .key {
+        min-width: 34px;
+        height: 49px;
+
+        border-radius: 6px;
+
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .key.wide {
+        min-width: 50px;
+        font-size: 10px;
+    }
+
+    .message {
+        margin-top: 15px;
+        padding: 8px;
+
+        font-size: 1rem;
+    }
+
+    .modal-content {
+        width: 95%;
+        max-height: 85vh;
+        margin: 5% auto;
+        padding: 20px;
+
+        overflow-y: auto;
+    }
+
+    #modalTitle {
+        font-size: 1.5rem;
+    }
+
+    #modalMessage {
+        font-size: 1rem;
+    }
+
+    .word-meaning {
+        margin: 15px 0;
+        padding: 15px;
+    }
+
+    .definition {
+        margin-bottom: 12px;
+        padding: 8px;
+    }
+}
+
+@media (max-width : 450px) {
+    .container {
+        padding: 15px;
+    }
+
+    .key {
+        min-width: 30px;
+        height: 50px;
+        font-size: 13px;
+    }
+
+    .key.wide {
+        min-width: 55px;
+    }
+    .tile {
+        width: 62px;
+        min-width: 25px;
+        font-size: 20px;
+    }
+}
+
