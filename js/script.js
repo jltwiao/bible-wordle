@@ -25,7 +25,7 @@ class WordleGame {
         this.wordLength = this.todayWord.length;
         this.maxAttempts = Number(config.MAX_ATTEMPTS);
         this.bypassWordLimit = Boolean(config.BYPASS_WORD_LIMIT);
-        if (this.bypassWordLimit){
+        if (this.bypassWordLimit) {
             WordleGame.KEYBOARD_LAYOUT.push(["SPACE"])
         }
         this.currentGuess = "";
@@ -72,21 +72,27 @@ class WordleGame {
             download: true,
             header: true,
             skipEmptyLines: true,
-            complete: ({ data }) => {
-                this.words = new Map(
-                    data
-                        .map((row) => [
-                            String(row.word ?? "").trim().toUpperCase(),
-                            String(row.definition ?? "").trim(),
-                        ])
-                        .filter(([name]) => name.length > 0),
-                );
+            step: ({data}) => {
+                if (!data){
+                    return;
+                }
+                const word = String(data.word ?? "").trim().toUpperCase();
+                if (!word) {
+                    return;
+                }
+                if ((this.bypassWordLimit ? word.length > this.wordLength : word.length !== this.wordLength) || !/^[A-Z]+$/.test(word)) {
+                    return;
+                }
+                const definition = String(data.definition ?? "").trim();
 
+                this.words.set(word, definition);
+
+            },
+            complete: () => {
                 if (this.gameEnded) {
                     this.displayWordMeaning();
                 }
             },
-
             error: (error) => {
                 console.error("Could not load the word list:", error);
                 this.showMessage("Could not load the word list.", "error");
@@ -138,10 +144,10 @@ class WordleGame {
                 keyElement.dataset.key = key;
                 keyElement.textContent = key === "BACKSPACE" ? "⌫" : key;
                 this.keyElements.set(key, keyElement)
-                if (["BACKSPACE","ENTER"].includes(key)) {
+                if (["BACKSPACE", "ENTER"].includes(key)) {
                     keyElement.classList.add("wide");
                 }
-                if (key === "SPACE"){
+                if (key === "SPACE") {
                     keyElement.classList.add("space");
                 }
 
@@ -389,12 +395,12 @@ class WordleGame {
         this.elements.wordMeaning.innerHTML = '<div class="loading"></div>';
 
         let localDescription = this.words.get(this.todayWord);
-        if (!localDescription){
+        if (!localDescription) {
             localDescription = "No definition yet for this word. :("
         }
-            this.elements.wordMeaning.replaceChildren(
-                this.createDefinitionElement(localDescription),
-            );
+        this.elements.wordMeaning.replaceChildren(
+            this.createDefinitionElement(localDescription),
+        );
     }
 
     createDefinitionElement(definition) {
@@ -419,7 +425,7 @@ class WordleGame {
             .join("\n");
 
         let heading = `Wordle guessed in ${this.guesses.length}/${this.maxAttempts}!`;
-        if (!this.won){
+        if (!this.won) {
             heading = `Wordle attempted! ${this.guesses.length}/${this.maxAttempts}!`
         }
 
