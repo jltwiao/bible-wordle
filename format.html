@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Score table</title>
+    <link rel="stylesheet" href="./css/format.css">
+    <script src="./js/format.js" defer></script>
+</head>
+<body class="content">
+<h1>Score table</h1>
+<p>Edit a score, or use + and −. Each committed score change is recorded. Changes save in this browser.</p>
+<p id="dayInfo" class="help"></p>
+<div class="table-wrapper">
+    <table>
+        <thead><tr><th scope="col">Rank</th><th scope="col">Name</th><th scope="col">Points</th><th scope="col">Gain today</th><th scope="col">CHG</th><th scope="col">Add / Remove</th></tr></thead>
+        <tbody id="tableData"></tbody>
+    </table>
+</div>
+<div class="actions">
+    <button id="addRow" type="button">+ Add row</button>
+    <button id="sortTable" type="button">Sort table</button>
+    <button id="copyTable" type="button">Copy table</button>
+    <button id="exportData" type="button">Export backup</button>
+    <label class="file-button">Restore backup<input type="file" id="importData" accept="application/json,.json"></label>
+</div>
+<p id="message" class="message" role="status" aria-live="polite" hidden></p>
+<div id="copyFallback" hidden><label for="copyOutput">Select and copy this table:</label><textarea id="copyOutput" rows="10" readonly></textarea></div>
+<section class="history-section">
+    <h2>Score history</h2>
+    <label for="historyDate">Day to view</label>
+    <input type="date" id="historyDate">
+    <p class="help">Gain is the net change that day. CHG compares end-of-day rank with start-of-day rank. Today’s values are live. Equal scores share a rank (1, 1, 3). NEW means the player was added that day.</p>
+    <div class="table-wrapper"><table><thead><tr><th>Name</th><th>Start</th><th>End</th><th>Gain</th><th>Rank</th><th>CHG</th></tr></thead><tbody id="dailyHistory"></tbody></table></div>
+    <h3>Individual changes</h3>
+    <p class="help">Typing a total records one entry when you leave the field or press Enter. Four + clicks record four +1 entries; the daily gain shows +4. Corrections are recorded too.</p>
+    <div class="table-wrapper"><table><thead><tr><th>Time</th><th>Name at change</th><th>Before</th><th>Change</th><th>After</th></tr></thead><tbody id="eventHistory"></tbody></table></div>
+    <p class="help">History begins when you use this version. Earlier edits cannot be reconstructed. Keep an exported backup if you clear browser data or move devices.</p>
+</section>
+</body>
+</html>

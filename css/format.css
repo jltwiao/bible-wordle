@@ -1,0 +1,166 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 32px 16px;
+    background: #191b20;
+    color: #f1f3f7;
+    font-family: system-ui, sans-serif;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 720px;
+    margin: auto;
+    align-items: stretch;
+}
+
+h1 {
+    margin-bottom: 0;
+}
+
+p {
+    color: #aeb7c7;
+    line-height: 1.6;
+}
+
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    margin: 16px 0;
+    border: 1px solid #3a414d;
+    border-radius: 10px;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th, td {
+    padding: 14px 12px;
+    text-align: left;
+    border-bottom: 1px solid #3a414d;
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+th {
+    background: #272b33;
+    font-size: 13px;
+    color: #c8d0dd;
+}
+
+input, button {
+    font: inherit;
+}
+
+input {
+    width: 100%;
+    min-width: 90px;
+    padding: 9px;
+    border: 1px solid #4e5868;
+    border-radius: 6px;
+    background: #23272e;
+    color: white;
+}
+
+.points-input {
+    width: 100px;
+    min-width: 70px;
+}
+
+.actions{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 30px;
+}
+
+button {
+    cursor: pointer;
+    border: 1px solid #506252;
+    border-radius: 6px;
+    padding: 9px 14px;
+    background: #315b43;
+    color: white;
+}
+
+button:hover {
+    background: #407655;
+}
+
+button:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}
+
+input:focus-visible, button:focus-visible {
+    outline: 2px solid #b7d3a9;
+    outline-offset: 3px;
+}
+
+.add_remove {
+    white-space: nowrap;
+}
+
+.add_remove button {
+    min-width: 40px;
+    margin-right: 6px;
+}
+
+.add_remove button:last-child {
+    margin-right: 0;
+}
+
+#addRow {
+    align-self: flex-start;
+}
+
+.message {
+    padding: 10px 14px;
+    border-radius: 6px;
+    background: #263b30;
+    color: #cee5cf;
+}
+
+.message.error {
+    background: #4b3030;
+    color: #ffd5d5;
+}
+
+@media (max-width: 480px) {
+    th, td {
+        padding: 10px 6px;
+    }
+
+    .points-input {
+        width: 75px;
+    }
+
+    .add_remove button {
+        padding: 8px;
+        min-width: 32px;
+    }
+}
+
+/* History and ranking additions; keep the original table style. */
+.content { max-width: 1000px; }
+.actions { gap: 10px; flex-wrap: wrap; justify-content: flex-start; }
+.help { font-size: 13px; }
+.rank, .gain, .movement { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.up { color: #a7e7b3; }
+.down { color: #ffb1ad; }
+.history-section { margin-top: 24px; border-top: 1px solid #3a414d; }
+#historyDate { display: block; width: auto; margin-top: 8px; color-scheme: dark; }
+textarea { display: block; width: 100%; margin-top: 10px; padding: 12px; background: #23272e; color: white; border: 1px solid #4e5868; border-radius: 6px; resize: vertical; }
+.file-button { display: inline-flex; align-items: center; padding: 9px 14px; border: 1px solid #506252; border-radius: 6px; background: #315b43; cursor: pointer; }
+.file-button input { width: 1px; min-width: 0; height: 1px; opacity: 0; position: absolute; }
+.file-button:focus-within { outline: 2px solid #b7d3a9; outline-offset: 3px; }
+.file-button:hover { background: #407655; }
