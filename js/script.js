@@ -605,7 +605,7 @@ class WordleGame {
 }
 
 const CONFIG_URL =
-    "https://gist.githubusercontent.com/skilledsweat/2d8538edcf6ecf559ac1665c0d5eaa0f/raw/bible-wordle.json";
+    "https://gist.githubusercontent.com/jltwiao/ec0ed2f1aeb966f5f78ffab13a3e2959/raw/bible-wordle.json";
 
 async function loadWordleConfig() {
     const time = new Date().setMinutes(0, 0, 0);
