@@ -20,13 +20,13 @@ function ranksFor(players) {
     const ranks = new Map();
     let rank = 0;
     sorted.forEach((p, i) => {
-        if (i === 0 || p.points !== sorted[i - 1].points) rank = i + 1;
+        rank = i + 1;
         ranks.set(p.id, rank);
     });
     return ranks;
 }
 
-// Rebuild a day's opening and closing standings from the permanent event log.
+// Rebuild opening and closing standings from one net total per player per day.
 function dailySnapshot(data, day) {
     const eligible = data.players.filter(p => p.createdDay <= day);
     const opening = [], closing = [];
@@ -64,11 +64,33 @@ function validateData(data) {
         if (!e || typeof e.id !== 'string' || !e.id || eventIds.has(e.id) || !player ||
             !validDay(e.day) || e.day < previousDay || e.day < player.createdDay ||
             typeof e.at !== 'string' || Number.isNaN(Date.parse(e.at)) || typeof e.name !== 'string' ||
-            !Number.isSafeInteger(e.delta) || e.delta === 0 || !validPoints(e.before) || !validPoints(e.after) ||
+            !Number.isSafeInteger(e.delta) || !validPoints(e.before) || !validPoints(e.after) ||
             e.before !== totals.get(e.playerId) || e.after - e.before !== e.delta) return false;
         previousDay = e.day; eventIds.add(e.id); totals.set(e.playerId, e.after);
     }
     return data.players.every(p => p.points === totals.get(p.id));
+}
+
+
+// The existing "events" field is retained for backup compatibility, but now
+// holds only ONE daily total per player. Older detailed logs are consolidated.
+function consolidateDailyChanges(data) {
+    const next = structuredClone(data);
+    const grouped = new Map();
+    for (const entry of next.events) {
+        const key = JSON.stringify([entry.day, entry.playerId]);
+        const daily = grouped.get(key);
+        if (daily) {
+            daily.after = entry.after;
+            daily.delta = daily.after - daily.before;
+            daily.at = entry.at;
+            daily.name = entry.name;
+        } else {
+            grouped.set(key, { ...entry });
+        }
+    }
+    next.events = [...grouped.values()];
+    return next;
 }
 
 class Table {
@@ -111,7 +133,11 @@ class Table {
             if (this.lastSaved !== null) {
                 const data = JSON.parse(this.lastSaved);
                 if (!validateData(data)) throw new Error('Invalid saved history');
-                return data;
+                const dailyData = consolidateDailyChanges(data);
+                const serialized = JSON.stringify(dailyData);
+                if (serialized !== this.lastSaved) localStorage.setItem(this.storageKey, serialized);
+                this.lastSaved = serialized;
+                return dailyData;
             }
             const legacy = localStorage.getItem('scores_data');
             if (legacy === null) return empty;
@@ -192,8 +218,17 @@ class Table {
         const next = structuredClone(this.data);
         const target = next.players.find(p => p.id === id);
         const now = new Date();
-        next.events.push({ id: newId(), playerId: id, name: player.name || '(unnamed)',
-            day: localDay(now), at: now.toISOString(), before: player.points, after: points, delta: points - player.points });
+        const day = localDay(now);
+        const daily = next.events.find(entry => entry.playerId === id && entry.day === day);
+        if (daily) {
+            daily.after = points;
+            daily.delta = points - daily.before;
+            daily.at = now.toISOString();
+            daily.name = player.name || '(unnamed)';
+        } else {
+            next.events.push({ id: newId(), playerId: id, name: player.name || '(unnamed)',
+                day, at: now.toISOString(), before: player.points, after: points, delta: points - player.points });
+        }
         target.points = points;
         if (!this.commit(next)) return false;
         // Do not replace inputs during blur: the following +/− click must still fire.
@@ -289,16 +324,14 @@ class Table {
 
     renderHistory() {
         const day = document.getElementById('historyDate').value;
-        const daily = document.getElementById('dailyHistory'), events = document.getElementById('eventHistory');
-        daily.replaceChildren(); events.replaceChildren();
+        const daily = document.getElementById('dailyHistory');
+        daily.replaceChildren();
         if (!validDay(day) || day < this.data.startedDay || day > localDay()) {
             this.appendCells(daily, ['Choose a date from the recorded period.']); return;
         }
         const snapshot = dailySnapshot(this.data, day).sort((a, b) => a.rank - b.rank);
         snapshot.forEach(p => this.appendCells(daily, [p.name || '(unnamed)', p.start, p.points, signed(p.gain), `${p.oldRank ?? 'NEW'} → ${p.rank}`, p.change]));
-        const entries = this.data.events.filter(e => e.day === day).reverse();
-        for (const e of entries) this.appendCells(events, [new Date(e.at).toLocaleTimeString(), e.name, e.before, signed(e.delta), e.after]);
-        if (!entries.length) this.appendCells(events, ['No point changes recorded for this day.']);
+
     }
 
     tableText() {
@@ -334,7 +367,7 @@ class Table {
             const data = JSON.parse(await file.text());
             if (!validateData(data)) throw new Error('This file is not a valid score-history backup.');
             if (!confirm('Replace the current scores and all history with this backup?')) return;
-            if (this.commit(data)) {
+            if (this.commit(consolidateDailyChanges(data))) {
                 this.savingDisabled = false;
                 document.getElementById('historyDate').min = data.startedDay;
                 document.getElementById('historyDate').value = localDay();
